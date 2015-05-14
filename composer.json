@@ -1,7 +1,7 @@
 {
-    "name": "php-activerecord/php-activerecord",
+    "name": "phpactiverecord-extend/phpactiverecord-extend",
     "type": "library",
-    "description": "php-activerecord is an open source ORM library based on the ActiveRecord pattern.",
+    "description": "phpactiverecord-extend is an open source ORM",
     "keywords": ["activerecord", "orm"],
     "homepage": "http://www.phpactiverecord.org/",
     "license": "MIT",
