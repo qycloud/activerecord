@@ -1,4 +1,4 @@
-# PHP ActiveRecord - Version 1.0 #
+# PHPACTIVERECORD-EXTEND - Version 1.0 #
 
 [![Build Status](https://travis-ci.org/jpfuentes2/php-activerecord.png?branch=master)](https://travis-ci.org/jpfuentes2/php-activerecord)
 
