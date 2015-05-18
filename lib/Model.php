@@ -786,7 +786,7 @@ class Model
 	 */
 	public function save($validate=true)
 	{
-		$this->verify_not_readonly('save');
+		$this->clear_relations()->verify_not_readonly('save');
 		return $this->is_new_record() ? $this->insert($validate) : $this->update($validate);
 	}
 
@@ -1291,6 +1291,18 @@ class Model
 		return $this;
 	}
 
+	/**
+	 * Clear relationships
+	 *
+	 * @return Model
+	 */
+	public function clear_relations()
+	{
+		$this->remove_from_cache();
+		$this->__relationships = array();
+		return $this;
+	}
+
 	public function __clone()
 	{
 		$this->__relationships = array();
@@ -1420,6 +1432,7 @@ class Model
 				// access association to ensure that the relationship has been loaded
 				// so that we do not double-up on records if we append a newly created
 				$this->$association_name;
+				$this->clear_relationsd();
 				return $association->$method($this, $args);
 			}
 		}
