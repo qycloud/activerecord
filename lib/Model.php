@@ -1432,7 +1432,7 @@ class Model
 				// access association to ensure that the relationship has been loaded
 				// so that we do not double-up on records if we append a newly created
 				$this->$association_name;
-				$this->clear_relationsd();
+				$this->clear_relations();
 				return $association->$method($this, $args);
 			}
 		}
