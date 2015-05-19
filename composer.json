@@ -1,5 +1,5 @@
 {
-    "name": "phpactiverecord-extend/phpactiverecord-extend",
+    "name": "qycloud/activerecord",
     "type": "library",
     "description": "phpactiverecord-extend is an open source ORM",
     "keywords": ["activerecord", "orm"],
