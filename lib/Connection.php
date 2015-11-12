@@ -328,6 +328,39 @@ abstract class Connection
 	}
 
 	/**
+	 *
+	 * @param  [String] $sql
+	 * @return [String]
+	 */
+	public function buildSql($sql)
+    {
+		$config = Config::instance()->get_options();
+		if (true !== $config['master_slave_enable']) {
+			return $sql;
+		}
+
+		static $tables = [];
+		$read_oprate = [
+			'select',
+			'SELECT',
+			'SHOW',
+			'show'
+		];
+        $sql = ltrim($sql);
+        $split = explode(" ", $sql);
+		preg_match_all($config['table_preg'], $sql, $output_array);
+        if (in_array($split[0], $read_oprate)) {
+			$intersect  = array_intersect($tables, $output_array[1]);
+			if (!empty($intersect)) {
+				$sql = sprintf("/*%s*/{$sql}", MYSQLND_MS_MASTER_SWITCH);
+			}
+        } else {
+			$tables = array_unique(array_merge($tables, $output_array[1]));
+		}
+        return $sql;
+    }
+
+	/**
 	 * Execute a query that returns maximum of one row with one field and return it.
 	 *
 	 * @param string $sql Raw SQL string to execute.

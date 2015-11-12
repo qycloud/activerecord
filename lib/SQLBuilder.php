@@ -364,9 +364,7 @@ class SQLBuilder
 	private function build_select()
 	{
 		$sql = "SELECT $this->select FROM $this->table";
-        if (isset($_SESSION['mysqlnd_ms_master_switch'])) {
-            $sql = sprintf("/*%s*/{$sql}", MYSQLND_MS_MASTER_SWITCH);
-        }
+
 		if ($this->joins)
 			$sql .= ' ' . $this->joins;
 
