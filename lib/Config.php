@@ -80,6 +80,18 @@ class Config extends Singleton
 	private $date_format = \DateTime::ISO8601;
 
 	/**
+	 * //setting master slave 
+     *  $cfg->set_options(
+     *       array(
+     *           'master_slave_enable' => Config('database.master_slave_enable'),
+     *           'table_preg' => Config('database.table_preg')
+     *       )
+     *   );
+	 * @var array
+	 */
+	private $options = array();
+
+	/**
 	 * Allows config initialization using a closure.
 	 *
 	 * This method is just syntatic sugar.
@@ -131,6 +143,18 @@ class Config extends Singleton
 			$this->set_default_connection($default_connection);
 
 		$this->connections = $connections;
+	}
+
+	public function set_options($options)
+	{
+		if (!is_array($options))
+			throw new ConfigException("Options must be an array");
+		$this->options = $options;
+	}
+
+	public function get_options()
+	{
+		return $this->options;
 	}
 
 	/**
