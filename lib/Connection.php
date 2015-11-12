@@ -326,7 +326,7 @@ abstract class Connection
 		}
 		return $sth;
 	}
-	
+
 	/**
 	 *
 	 * @param  [String] $sql
@@ -335,7 +335,7 @@ abstract class Connection
 	public function buildSql($sql)
     {
 		$config = Config::instance()->get_options();
-		if (false === $config['master_slave_enable']) {
+		if (true !== $config['master_slave_enable']) {
 			return $sql;
 		}
 
