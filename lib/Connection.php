@@ -308,7 +308,7 @@ abstract class Connection
 		}
 
 		$this->last_query = $sql;
-
+		$sql = $this->buildSql($sql);
 		try {
 			if (!($sth = $this->connection->prepare($sql)))
 				throw new DatabaseException($this);
