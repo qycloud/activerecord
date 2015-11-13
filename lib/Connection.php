@@ -352,7 +352,7 @@ abstract class Connection
         if (in_array($split[0], $read_oprate)) {
 			$intersect  = array_intersect($tables, $output_array[1]);
 			if (!empty($intersect)) {
-				$sql = sprintf("/*%s*/{$sql}", MYSQLND_MS_MASTER_SWITCH);
+				$sql = "/*".MYSQLND_MS_MASTER_SWITCH."*/".$sql;
 			}
         } else {
 			$tables = array_unique(array_merge($tables, $output_array[1]));
