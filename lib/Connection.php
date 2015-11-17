@@ -346,10 +346,11 @@ abstract class Connection
 			'SHOW',
 			'show'
 		];
-        $sql = ltrim($sql);
-        $split = explode(" ", $sql);
+		//解析出操作符
+        preg_match("/^\s*(\w+)\s/i", $sql, $oprate);
+		//根据配置规则解析出所有表名字
 		preg_match_all($config['table_preg'], $sql, $output_array);
-        if (in_array($split[0], $read_oprate)) {
+        if (in_array($oprate[1], $read_oprate)) {
 			$intersect  = array_intersect($tables, $output_array[1]);
 			if (!empty($intersect)) {
 				$sql = "/*".MYSQLND_MS_MASTER_SWITCH."*/".$sql;
