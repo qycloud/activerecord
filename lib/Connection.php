@@ -410,6 +410,7 @@ abstract class Connection
 	 */
 	public function transaction()
 	{
+		$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
 		if (!$this->connection->beginTransaction())
 			throw new DatabaseException($this);
 	}
@@ -421,6 +422,7 @@ abstract class Connection
 	{
 		if (!$this->connection->commit())
 			throw new DatabaseException($this);
+		$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
 	}
 
 	/**
@@ -430,6 +432,7 @@ abstract class Connection
 	{
 		if (!$this->connection->rollback())
 			throw new DatabaseException($this);
+		$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
 	}
 
 	/**
