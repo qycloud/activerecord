@@ -347,7 +347,7 @@ abstract class Connection
 			'show'
 		];
 		//解析出操作符
-        preg_match("/^\s*(\w+)\s/i", $sql, $oprate);
+        preg_match("/^\s*\(?\s*(\w+)\s/i", $sql, $oprate);
 		//根据配置规则解析出所有表名字
 		preg_match_all($config['table_preg'], $sql, $output_array);
         if (in_array($oprate[1], $read_oprate)) {
