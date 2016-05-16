@@ -16,7 +16,6 @@ namespace ActiveRecord;
 class Table
 {
 	private static $cache = array();
-
 	public $class;
 	public $conn;
 	public $pk;
@@ -216,7 +215,14 @@ class Table
 		$readonly = (array_key_exists('readonly',$options) && $options['readonly']) ? true : false;
 		$eager_load = array_key_exists('include',$options) ? $options['include'] : null;
 
-		return $this->find_by_sql($sql->to_s(),$sql->get_where_values(), $readonly, $eager_load);
+                $data = \Dbcache::get([$sql->to_s(), $sql->get_where_values()]);
+
+                if (empty($data)) {
+                    $data = $this->find_by_sql($sql->to_s(),$sql->get_where_values(), $readonly, $eager_load);
+                    \Dbcache::set([$sql->to_s(), $sql->get_where_values()], $data);
+                }
+
+		return $data;
 	}
 
 	public function cache_key_for_model($pk)
@@ -234,36 +240,38 @@ class Table
 
 		$collect_attrs_for_includes = is_null($includes) ? false : true;
 		$list = $attrs = array();
-		$sth = $this->conn->query($sql,$this->process_data($values));
 
-		$self = $this;
-		while (($row = $sth->fetch()))
-		{
-			$cb = function() use ($row, $self)
-			{
-				return new $self->class->name($row, false, true, false);
-			};
-			if ($this->cache_individual_model)
-			{
-				$key = $this->cache_key_for_model(array_intersect_key($row, array_flip($this->pk)));
-				$model = Cache::get($key, $cb, $this->cache_model_expire);
-			}
-			else
-			{
-				$model = $cb();
-			}
+                $sth = $this->conn->query($sql,$this->process_data($values));
 
-			if ($readonly)
-				$model->readonly();
+                $self = $this;
+                while (($row = $sth->fetch()))
+                {
+                        $cb = function() use ($row, $self)
+                        {
+                                return new $self->class->name($row, false, true, false);
+                        };
+                        if ($this->cache_individual_model)
+                        {
+                                $key = $this->cache_key_for_model(array_intersect_key($row, array_flip($this->pk)));
+                                $model = Cache::get($key, $cb, $this->cache_model_expire);
+                        }
+                        else
+                        {
+                                $model = $cb();
+                        }
 
-			if ($collect_attrs_for_includes)
-				$attrs[] = $model->attributes();
+                        if ($readonly)
+                                $model->readonly();
 
-			$list[] = $model;
-		}
+                        if ($collect_attrs_for_includes)
+                                $attrs[] = $model->attributes();
 
-		if ($collect_attrs_for_includes && !empty($list))
-			$this->execute_eager_load($list, $attrs, $includes);
+                        $list[] = $model;
+                }
+
+                if ($collect_attrs_for_includes && !empty($list))
+                        $this->execute_eager_load($list, $attrs, $includes);
+
 
 		return $list;
 	}
@@ -356,6 +364,8 @@ class Table
 		$sql->insert($data,$pk,$sequence_name);
 
 		$values = array_values($data);
+
+                \Dbcache::clean([$sql->to_s(), $values]);
 		return $this->conn->query(($this->last_sql = $sql->to_s()),$values);
 	}
 
@@ -367,6 +377,7 @@ class Table
 		$sql->update($data)->where($where);
 
 		$values = $sql->bind_values();
+                \Dbcache::clean([$sql->to_s(), $values]);
 		return $this->conn->query(($this->last_sql = $sql->to_s()),$values);
 	}
 
@@ -378,6 +389,7 @@ class Table
 		$sql->delete($data);
 
 		$values = $sql->bind_values();
+                \Dbcache::clean([$sql->to_s(), $values]);
 		return $this->conn->query(($this->last_sql = $sql->to_s()),$values);
 	}
 
@@ -600,4 +612,5 @@ class Table
 			trigger_error('static::$getters and static::$setters are deprecated. Please define your setters and getters by declaring methods in your model prefixed with get_ or set_. See
 			http://www.phpactiverecord.org/projects/main/wiki/Utilities#attribute-setters and http://www.phpactiverecord.org/projects/main/wiki/Utilities#attribute-getters on how to make use of this option.', E_USER_DEPRECATED);
 	}
+
 }
