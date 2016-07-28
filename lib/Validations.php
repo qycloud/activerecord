@@ -572,7 +572,8 @@ class Validations
 		{
 			$options = array_merge($configuration, $attr);
 			$pk = $this->model->get_primary_key();
-			$pk_value = $this->model->$pk[0];
+			$pkey = $pk[0];
+			$pk_value = $this->model->$pkey;
 
 			if (is_array($options[0]))
 			{
@@ -587,7 +588,7 @@ class Validations
 
 			$sql = "";
 			$conditions = array("");
-			$pk_quoted = $connection->quote_name($pk[0]);
+			$pk_quoted = $connection->quote_name($pkey);
 			if ($pk_value === null)
 				$sql = "{$pk_quoted} IS NOT NULL";
 			else
