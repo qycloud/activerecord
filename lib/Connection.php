@@ -301,6 +301,9 @@ abstract class Connection
 	 */
 	public function query($sql, &$values=array())
 	{
+		// BOF SQL业务性能分析功能
+		$sqlAnalysis = new \Lib\SqlAnalysis('orm');
+
 		if ($this->logging)
 		{
 			$this->logger->log($sql);
@@ -324,6 +327,10 @@ abstract class Connection
 		} catch (PDOException $e) {
 			throw new DatabaseException($e);
 		}
+
+		// EOF SQL业务性能分析功能
+		$sqlAnalysis->run($sql, $values, $sth->rowCount());
+
 		return $sth;
 	}
 
