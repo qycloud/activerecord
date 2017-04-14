@@ -303,7 +303,7 @@ abstract class Connection
 	{
 		// BOF SQL业务性能分析功能
 		$sqlAnalysis = new \Lib\SqlAnalysis('orm');
-
+		$config = Config::instance()->get_options();
 		if ($this->logging)
 		{
 			$this->logger->log($sql);
@@ -311,7 +311,9 @@ abstract class Connection
 		}
 
 		$this->last_query = $sql;
-		$sql = $this->buildSql($sql);
+		if (isset($config['callBack']) && is_callable($config['callBack'])) {
+			$sql = $config['callBack']($sql);
+		}
 		try {
 			if (!($sth = $this->connection->prepare($sql)))
 				throw new DatabaseException($this);
@@ -333,40 +335,6 @@ abstract class Connection
 
 		return $sth;
 	}
-
-	/**
-	 *
-	 * @param  [String] $sql
-	 * @return [String]
-	 */
-	public function buildSql($sql)
-    {
-		$config = Config::instance()->get_options();
-		if (true !== $config['master_slave_enable']) {
-			return $sql;
-		}
-
-		static $tables = [];
-		$read_oprate = [
-			'select',
-			'SELECT',
-			'SHOW',
-			'show'
-		];
-		//解析出操作符
-        preg_match("/^\s*\(?\s*(\w+)\s/i", $sql, $oprate);
-		//根据配置规则解析出所有表名字
-		preg_match_all($config['table_preg'], $sql, $output_array);
-        if (in_array($oprate[1], $read_oprate)) {
-			$intersect  = array_intersect($tables, $output_array[1]);
-			if (!empty($intersect)) {
-				$sql = "/*".MYSQLND_MS_MASTER_SWITCH."*/".$sql;
-			}
-        } else {
-			$tables = array_unique(array_merge($tables, $output_array[1]));
-		}
-        return $sql;
-    }
 
 	/**
 	 * Execute a query that returns maximum of one row with one field and return it.
