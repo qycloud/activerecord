@@ -26,6 +26,19 @@ define('PHP_ACTIVERECORD_VERSION_ID','1.0');
 //if (!defined('PHP_ACTIVERECORD_AUTOLOAD_DISABLE'))
 //	spl_autoload_register('activerecord_autoload',false,PHP_ACTIVERECORD_AUTOLOAD_PREPEND);
 
+/**
+ * autoload lib file
+ */
+spl_autoload_register(function($className) {
+    $className = basename(str_replace('\\', '/', $className));
+    foreach (['/', '/adapters/', '/cache/'] as $dict) {
+        $filePath = __DIR__ . '/lib' . $dict . $className . '.php';
+
+        if (file_exists($filePath)) {
+            return include_once $filePath;
+        }
+    }
+});
 
 /**
  * autoload table
@@ -35,7 +48,6 @@ function activerecord_autoload($class_name)
         if (!class_exists('ActiveRecord\Config', false)) {
             return;
         }
-
 	$path = ActiveRecord\Config::instance()->get_model_directory();
 	$root = realpath(isset($path) ? $path : '.');
 
@@ -56,17 +68,3 @@ function activerecord_autoload($class_name)
 		require_once $file;
 }
 spl_autoload_register('activerecord_autoload');
-
-/**
- * autoload lib file
- */
-spl_autoload_register(function($className) {
-    $className = basename(str_replace('\\', '/', $className));
-    foreach (['/', '/adapters/', '/cache/'] as $dict) {
-        $filePath = __DIR__ . '/lib' . $dict . $className . '.php';
-
-        if (file_exists($filePath)) {
-            return include_once $filePath;
-        }
-    }
-});
