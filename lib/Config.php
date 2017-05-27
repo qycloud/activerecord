@@ -5,6 +5,7 @@
 namespace ActiveRecord;
 use Closure;
 
+require_once 'Utils.php';
 /**
  * Manages configuration options for ActiveRecord.
  *
@@ -80,7 +81,7 @@ class Config extends Singleton
 	private $date_format = \DateTime::ISO8601;
 
 	/**
-	 * //setting master slave 
+	 * //setting master slave
      *  $cfg->set_options(
      *       array(
      *           'master_slave_enable' => Config('database.master_slave_enable'),
@@ -325,3 +326,4 @@ class Config extends Singleton
 		Cache::initialize($url,$options);
 	}
 }
+
