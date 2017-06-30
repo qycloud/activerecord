@@ -234,6 +234,15 @@ class Table
 
 		$collect_attrs_for_includes = is_null($includes) ? false : true;
 		$list = $attrs = array();
+
+        //是否开启主从
+        $configOption = Config::instance()->get_options();
+        if(isset($configOption['master_slave_enable']) && $configOption['master_slave_enable'] === true)
+        {
+            $this->conn = ConnectionManager::get_connection("slave");
+        }
+
+
 		$sth = $this->conn->query($sql,$this->process_data($values));
 
 		$self = $this;
@@ -264,6 +273,13 @@ class Table
 
 		if ($collect_attrs_for_includes && !empty($list))
 			$this->execute_eager_load($list, $attrs, $includes);
+
+
+        ////是否开启主从 如果是读操作 重置链接为默认链接 防止误操作从库
+        if(isset($configOption['master_slave_enable']) && $configOption['master_slave_enable'] === true)
+        {
+            $this->conn = ConnectionManager::get_connection();
+        }
 
 		return $list;
 	}
