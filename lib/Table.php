@@ -235,11 +235,10 @@ class Table
 		$collect_attrs_for_includes = is_null($includes) ? false : true;
 		$list = $attrs = array();
 
-        //是否开启主从
+        //判断是否开启了主从  以及是否 使用从库链接
         $configOption = Config::instance()->get_options();
-        if(isset($configOption['master_slave_enable']) && $configOption['master_slave_enable'] === true)
-        {
-            $this->conn = ConnectionManager::get_connection("slave");
+        if($configOption['isSlave']){
+            $conn = ConnectionManager::get_connection(array_rand($configOption['slaveKeys']));
         }
 
 
@@ -276,7 +275,7 @@ class Table
 
 
         ////是否开启主从 如果是读操作 重置链接为默认链接 防止误操作从库
-        if(isset($configOption['master_slave_enable']) && $configOption['master_slave_enable'] === true)
+        if($configOption['isSlave'])
         {
             $this->conn = ConnectionManager::get_connection();
         }
@@ -415,6 +414,10 @@ class Table
 
 		$table_name = $this->get_fully_qualified_table_name($quote_name);
 		$conn = $this->conn;
+        $configOption = Config::instance()->get_options();
+        if($configOption['isSlave']){
+            $conn = ConnectionManager::get_connection(array_rand($configOption['slaveKeys']));
+        }
 		$this->columns = Cache::get("get_meta_data-$table_name", function() use ($conn, $table_name) { return $conn->columns($table_name); });
 	}
 
