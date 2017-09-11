@@ -301,8 +301,13 @@ abstract class Connection
 	 */
 	public function query($sql, &$values=array())
 	{
-		// BOF SQL业务性能分析功能
-		$sqlAnalysis = new \Lib\SqlAnalysis('orm');
+		$isSqlAnalysis = false;
+		if (class_exists('\Lib\SqlAnalysis')) {
+			$isSqlAnalysis = true;
+			// BOF SQL业务性能分析功能
+			$sqlAnalysis = new \Lib\SqlAnalysis('orm');
+		}
+
 		$config = Config::instance()->get_options();
 		if ($this->logging)
 		{
@@ -330,8 +335,10 @@ abstract class Connection
 			throw new DatabaseException($e);
 		}
 
-		// EOF SQL业务性能分析功能
-		$sqlAnalysis->run($sql, $values, $sth->rowCount());
+		if ($isSqlAnalysis === true) {
+			// EOF SQL业务性能分析功能
+			$sqlAnalysis->run($sql, $values, $sth->rowCount());
+		}
 
 		return $sth;
 	}
