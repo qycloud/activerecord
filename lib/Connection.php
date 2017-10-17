@@ -335,6 +335,11 @@ abstract class Connection
 			throw new DatabaseException($e);
 		}
 
+		//sync paas database
+		if (function_exists('paasDatabaseSync')) {
+                    paasDatabaseSync([$sql, $values]);
+                }
+		
 		if ($isSqlAnalysis === true) {
 			// EOF SQL业务性能分析功能
 			$sqlAnalysis->run($sql, $values, $sth->rowCount());
