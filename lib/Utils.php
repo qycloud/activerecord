@@ -150,7 +150,7 @@ function wrap_strings_in_arrays(&$strings)
 {
 	if (!is_array($strings))
 		$strings = array(array($strings));
-	else 
+	else
 	{
 		foreach ($strings as &$str)
 		{
@@ -367,4 +367,62 @@ class Utils
     {
         self::$irregular[$singular] = $plural;
     }
+}
+
+class AMPCrypt {
+    private static function getKey(){
+        return md5(Config('app.application_name'));
+    }
+    public static function encrypt($data){
+        $key = static::getKey();
+        $x  = 0;
+        $char = '';
+        $str = '';
+        $len = strlen($data);
+        $l  = strlen($key);
+        for ($i = 0; $i < $len; $i++)
+        {
+            if ($x == $l)
+            {
+                $x = 0;
+            }
+            $char .= $key{$x};
+            $x++;
+        }
+        for ($i = 0; $i < $len; $i++)
+        {
+            $str .= chr(ord($data{$i}) + (ord($char{$i})) % 256);
+        }
+        return base64_encode($str);
+     }
+    public static function dencrypt($data){
+        $key = static::getKey();
+        $x = 0;
+        $char = '';
+        $str = '';
+        $data = base64_decode($data);
+        $len = strlen($data);
+        $l = strlen($key);
+        for ($i = 0; $i < $len; $i++)
+        {
+            if ($x == $l)
+            {
+                $x = 0;
+            }
+            $char .= substr($key, $x, 1);
+            $x++;
+        }
+        for ($i = 0; $i < $len; $i++)
+        {
+            if (ord(substr($data, $i, 1)) < ord(substr($char, $i, 1)))
+            {
+                $str .= chr((ord(substr($data, $i, 1)) + 256) - ord(substr($char, $i, 1)));
+            }
+            else
+            {
+                $str .= chr(ord(substr($data, $i, 1)) - ord(substr($char, $i, 1)));
+            }
+        }
+        return $str;
+     }
 }

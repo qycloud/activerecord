@@ -232,25 +232,35 @@ abstract class Connection
 	 * @param array $info Array containing URL parts
 	 * @return Connection
 	 */
-	protected function __construct($info)
-	{
-		try {
-			// unix sockets start with a /
-			if ($info->host[0] != '/')
-			{
-				$host = "host=$info->host";
+	 protected function __construct($info)
+ 	{
+ 		try {
+ 			// unix sockets start with a /
+ 			if ($info->host[0] != '/')
+ 			{
+ 				$host = "host=$info->host";
 
-				if (isset($info->port))
-					$host .= ";port=$info->port";
-			}
-			else
-				$host = "unix_socket=$info->host";
+ 				if (isset($info->port))
+ 					$host .= ";port=$info->port";
+ 			}
+ 			else
+ 				$host = "unix_socket=$info->host";
 
-			$this->connection = new PDO("$info->protocol:$host;dbname=$info->db", $info->user, $info->pass, static::$PDO_OPTIONS);
-		} catch (PDOException $e) {
-			throw new DatabaseException($e);
-		}
-	}
+             $password = $this->_mcryptPassword($info->pass);
+ 			$this->connection = new PDO("$info->protocol:$host;dbname=$info->db", $info->user, $password, static::$PDO_OPTIONS);
+ 		} catch (PDOException $e) {
+ 			throw new DatabaseException($e);
+ 		}
+ 	}
+
+ 	private function _mcryptPassword($password)
+ 	{
+ 		if (extension_loaded('mcrypt')) {
+ 			return AMPCrypt::dencrypt($password);
+ 		} else {
+ 			return $password;
+ 		}
+ 	}
 
 	/**
 	 * Retrieves column meta data for the specified table.
@@ -339,7 +349,7 @@ abstract class Connection
 		if (function_exists('paasDatabaseSync')) {
                     paasDatabaseSync([$sql, $values]);
                 }
-		
+
 		if ($isSqlAnalysis === true) {
 			// EOF SQL业务性能分析功能
 			$sqlAnalysis->run($sql, $values, $sth->rowCount());
