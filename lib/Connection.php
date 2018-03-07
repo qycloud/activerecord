@@ -255,7 +255,7 @@ abstract class Connection
 
  	private function _mcryptPassword($password)
  	{
- 		if (extension_loaded('mcrypt')) {
+ 		if (class_exists('\ActiveRecord\AMPCrypt')) {
  			return AMPCrypt::dencrypt($password);
  		} else {
  			return $password;
