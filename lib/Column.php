@@ -130,7 +130,7 @@ class Column
 
 		// If adding 0 to a string causes a float conversion,
 		// we have a number over PHP_INT_MAX
-		elseif (is_string($value) && is_float($value + 0))
+		elseif (is_string($value) && is_float(intval($value) + 0))
 			return is_array($value) ? (array)$value : (string)$value;
 
 		// If a float was passed and its greater than PHP_INT_MAX
