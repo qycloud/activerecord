@@ -302,10 +302,10 @@ abstract class Connection
 	public function query($sql, &$values=array())
 	{
 		$isSqlAnalysis = false;
-		if (class_exists('\Lib\SqlAnalysis')) {
+		if (class_exists('\Core\Utils\SqlAnalysis')) {
 			$isSqlAnalysis = true;
 			// BOF SQL业务性能分析功能
-			$sqlAnalysis = new \Lib\SqlAnalysis('orm');
+			$sqlAnalysis = new \Core\Utils\SqlAnalysis('orm');
 		}
 
 		$config = Config::instance()->get_options();
