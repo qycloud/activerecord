@@ -32,6 +32,11 @@ class MysqlAdapter extends Connection
 
 	public function create_column(&$column)
 	{
+		//解决多数据库适配，oracle 类型转换
+		if ($column['type'] === 'DECIMAL') {
+		    $column['type'] = 'int';
+		}
+		
 		$c = new Column();
 		$c->inflected_name	= Inflector::instance()->variablize($column['field']);
 		$c->name			= $column['field'];
