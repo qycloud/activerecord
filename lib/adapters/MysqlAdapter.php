@@ -34,7 +34,7 @@ class MysqlAdapter extends Connection
 	{
 		//解决多数据库适配，oracle 类型转换
 		if ($column['type'] === 'DECIMAL') {
-		    $column['type'] = 'int';
+		    $column['type'] = 'double';
 		}
 		
 		$c = new Column();
